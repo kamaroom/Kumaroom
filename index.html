@@ -2,15 +2,16 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>비보 대여 일정표</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
 <style>
-  /* ================================================================
-     ✏️ 일정 수정은 아래 <script> 안의 SCHEDULE 부분만 고치면 돼요!
-     ================================================================ */
+  /* ✏️ 일정 수정은 schedule.js 파일에서 하세요! */
   :root{
     --bg:#f4e0e3;
     --star:#eaa9b7;
@@ -243,34 +244,16 @@
 </div>
 
 <script>
-/* ================================================================
-   ✏️ 여기만 수정하세요!
-   - date   : "YYYY-MM-DD" (시작일)
-   - end    : 여러 날이면 마지막 날 "YYYY-MM-DD" (하루면 빼도 됨)
-   - status : "open"(예약가능) / "few"(마감임박) / "closed"(예약마감)
-   - note   : 손님께 보여줄 메모 (없으면 "" )
-   ※ 공연 이름은 넣지 마세요 (손님 화면에 안 보이게)
-   ================================================================ */
-const SCHEDULE = [
-  { date: "2026-11-06",                    status: "closed", note: "" },
-  { date: "2026-11-07", end: "2026-11-08", status: "closed", note: "" },
-  { date: "2026-11-14", end: "2026-11-15", status: "closed", note: "" },
-  { date: "2026-11-21", end: "2026-11-22", status: "closed", note: "" },
-  { date: "2026-11-29", end: "2026-12-01", status: "closed", note: "" },
-  { date: "2026-12-03", end: "2026-12-06", status: "few",    note: "" },
-  { date: "2026-12-10", end: "2026-12-13", status: "closed", note: "" },
-  { date: "2026-12-17", end: "2026-12-20", status: "closed", note: "" },
-  { date: "2026-12-24", end: "2026-12-27", status: "open",   note: "다음 날 휴일이라 4일 이상 대여만 가능" },
-  { date: "2027-01-15", end: "2027-01-16", status: "closed", note: "" },
-];
+/* 일정은 schedule.js 에 있어요. 매번 새로 불러와서 예전 일정이 안 뜨게 함 */
+(function () {
+  const sc = document.createElement("script");
+  sc.src = "schedule.js?v=" + Date.now();
+  sc.onload = start;
+  sc.onerror = () => { document.getElementById("list").innerHTML = '<p class="empty-msg">일정을 불러오지 못했어요. 새로고침 해주세요 ☆</p>'; };
+  document.head.appendChild(sc);
+})();
 
-// 문의 링크 (오픈채팅, 인스타 DM, 당근 등 주소로 바꾸기)
-const CONTACT_URL = "https://open.kakao.com/";
-
-// 마지막 업데이트 날짜
-const LAST_UPDATED = "2026-11-23";
-/* ================================================================ */
-
+function start() {
 const STATUS_LABEL = { open: "예약가능", few: "마감임박", closed: "예약마감" };
 
 
@@ -375,6 +358,7 @@ document.getElementById("copyForm").onclick = async (e) => {
   catch { e.target.textContent = "복사가 안 돼요 ㅠ 직접 적어주세요"; }
 };
 render();
+}
 </script>
 </body>
 </html>
