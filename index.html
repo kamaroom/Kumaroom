@@ -140,8 +140,8 @@
   .modal input{width:20px;height:20px;accent-color:var(--closed)}
   .modal button{display:block;width:100%;border:none;border-radius:999px;padding:14px 0;font-family:inherit;font-size:17px;cursor:pointer}
   .modal .m-read{background:var(--pill);color:var(--brown);margin-top:18px}
-  .modal .m-ok{background:var(--brown);color:#fff;display:none}
-  .modal .m-ok.show{display:block;animation:pop .2s ease}
+  .modal .m-ok{background:var(--brown);color:#fff;transition:opacity .2s}
+  .modal .m-ok:disabled{opacity:.3;cursor:not-allowed}
   .btn{display:block;text-align:center;border:none;width:100%;font-family:inherit;cursor:pointer;background:var(--brown);color:#fff;border-radius:999px;padding:15px;font-size:18px}
   .updated{text-align:center;font-size:13px;color:var(--brown-soft);margin-top:14px}
 
@@ -291,7 +291,7 @@
     <p style="font-size:15px;color:var(--brown-soft)">문의 전에 꼭 확인해주세요</p>
     <button class="m-read" id="mRead">📖 주의사항 보러가기</button>
     <label><input type="checkbox" id="agree"> 주의사항을 모두 읽고 동의해요</label>
-    <button class="m-ok" id="mOk">💌 문의하러 가기</button>
+    <button class="m-ok" id="mOk" disabled>💌 문의하러 가기</button>
   </div>
 </div>
 
@@ -312,10 +312,10 @@ let agreed = false, afterAgree = null;
 const modal = document.getElementById("modal"), agreeBox = document.getElementById("agree"), okBtn = document.getElementById("mOk");
 function askAgree(next) {
   if (agreed) return next();
-  afterAgree = next; agreeBox.checked = false; okBtn.classList.remove("show");
+  afterAgree = next; agreeBox.checked = false; okBtn.disabled = true;
   modal.classList.add("show");
 }
-agreeBox.onchange = () => okBtn.classList.toggle("show", agreeBox.checked);
+agreeBox.onchange = () => okBtn.disabled = !agreeBox.checked;
 okBtn.onclick = () => { agreed = true; modal.classList.remove("show"); afterAgree && afterAgree(); };
 document.getElementById("mRead").onclick = () => { modal.classList.remove("show"); showView("must"); };
 modal.onclick = e => { if (e.target === modal) modal.classList.remove("show"); };
