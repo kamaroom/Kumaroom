@@ -129,6 +129,20 @@
   .warn h3:first-child{margin-top:0}
   .nokid{text-align:center;margin-top:10px;color:var(--closed);font-size:17px}
 
+  /* 주의사항 확인 팝업 */
+  .modal-bg{position:fixed;inset:0;background:rgba(80,50,45,.45);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+  .modal-bg.show{display:flex}
+  .modal{background:#fff;border-radius:32px;padding:28px 22px 22px;max-width:360px;width:100%;text-align:center;animation:pop .2s ease}
+  .modal h3{font-size:22px;font-weight:400;margin-bottom:10px}
+  .modal .m-list{text-align:left;background:#fdf1f3;border-radius:18px;padding:12px 14px;font-size:15px;margin:12px 0}
+  .modal .m-list p+p{margin-top:4px}
+  .modal label{display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;cursor:pointer;margin:14px 0}
+  .modal input{width:20px;height:20px;accent-color:var(--closed)}
+  .modal .m-btns{display:flex;gap:8px}
+  .modal .m-btns button{flex:1;border:none;border-radius:999px;padding:13px 0;font-family:inherit;font-size:16px;cursor:pointer}
+  .modal .m-read{background:var(--pill);color:var(--brown)}
+  .modal .m-ok{background:var(--brown);color:#fff}
+  .modal .m-ok:disabled{opacity:.35;cursor:not-allowed}
   .btn{display:block;text-align:center;border:none;width:100%;font-family:inherit;cursor:pointer;background:var(--brown);color:#fff;border-radius:999px;padding:15px;font-size:18px}
   .updated{text-align:center;font-size:13px;color:var(--brown-soft);margin-top:14px}
 
@@ -272,6 +286,25 @@
 
 </div>
 
+<div class="modal-bg" id="modal">
+  <div class="modal" role="dialog" aria-modal="true">
+    <h3>❗ 주의사항 읽으셨나요?</h3>
+    <p style="font-size:15px;color:var(--brown-soft)">문의 전에 꼭 확인해주세요</p>
+    <div class="m-list">
+      <p>☆ 대여자 본인만 픽업 가능 (신분증 확인)</p>
+      <p>☆ 미성년자 대여 불가</p>
+      <p>☆ 파손 · 분실 시 동일 상품 가격으로 배상</p>
+      <p>☆ 반납 지연 시 1일 대여금액 추가</p>
+      <p>☆ 미반납 · 연락두절 시 경찰 신고 및 고소</p>
+    </div>
+    <label><input type="checkbox" id="agree"> 주의사항을 모두 읽고 동의해요</label>
+    <div class="m-btns">
+      <button class="m-read" id="mRead">주의사항 보기</button>
+      <button class="m-ok" id="mOk" disabled>문의하러 가기</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ---------- 메뉴 ---------- */
 function showView(name) {
@@ -284,7 +317,28 @@ function showView(name) {
 document.getElementById("menuBtn").onclick = () => document.body.classList.add("open");
 document.getElementById("overlay").onclick = () => document.body.classList.remove("open");
 document.querySelectorAll(".drawer button").forEach(b => b.onclick = () => showView(b.dataset.view));
-document.querySelectorAll("[data-go]").forEach(b => b.onclick = () => showView(b.dataset.go));
+/* ---------- 주의사항 확인 팝업 ---------- */
+let agreed = false, afterAgree = null;
+const modal = document.getElementById("modal"), agreeBox = document.getElementById("agree"), okBtn = document.getElementById("mOk");
+function askAgree(next) {
+  if (agreed) return next();
+  afterAgree = next; agreeBox.checked = false; okBtn.disabled = true;
+  modal.classList.add("show");
+}
+agreeBox.onchange = () => okBtn.disabled = !agreeBox.checked;
+okBtn.onclick = () => { agreed = true; modal.classList.remove("show"); afterAgree && afterAgree(); };
+document.getElementById("mRead").onclick = () => { modal.classList.remove("show"); showView("must"); };
+modal.onclick = e => { if (e.target === modal) modal.classList.remove("show"); };
+function go(name) { name === "contact" ? askAgree(() => showView("contact")) : showView(name); }
+
+// 카톡·번장·당근 링크도 동의 전엔 팝업 먼저
+document.querySelectorAll(".link").forEach(a => a.onclick = e => {
+  if (agreed) return;
+  e.preventDefault();
+  askAgree(() => window.open(a.href, "_blank"));
+});
+
+document.querySelectorAll("[data-go]").forEach(b => b.onclick = () => go(b.dataset.go));
 if (["price", "contact", "must"].includes(location.hash.slice(1))) showView(location.hash.slice(1));
 
 document.getElementById("copyForm").onclick = async (e) => {
@@ -347,7 +401,7 @@ function start() {
       const go = st !== "closed" ? `<br><button class="go" data-go="contact">이 날짜로 문의하기 ›</button>` : "";
       box.innerHTML = `<div class="d-date">${title}</div>${range}<span class="badge ${st}">${STATUS_LABEL[st]}</span>${notes}${go}`;
     }
-    box.querySelectorAll("[data-go]").forEach(b => b.onclick = () => showView(b.dataset.go));
+    box.querySelectorAll("[data-go]").forEach(b => b.onclick = () => go(b.dataset.go));
     box.className = "detail show";
   }
 
