@@ -15,7 +15,7 @@ var SCHEDULE = [
   { date: "2026-12-03", end: "2026-12-06", status: "few",    note: "" },
   { date: "2026-12-10", end: "2026-12-13", status: "closed", note: "" },
   { date: "2026-12-17", end: "2026-12-20", status: "closed", note: "" },
-  { date: "2026-12-24", end: "2026-12-27", status: "open",   note: "다음 날 휴일이라 4일 이상 대여만 가능" },
+  { date: "2026-12-24", end: "2026-12-27", status: "open",   note: "다음 날 휴일이라 3일 이상 대여만 가능" },
   { date: "2027-01-01", end: "2027-01-02", status: "closed", note: "" },
   { date: "2027-01-15", end: "2027-01-16", status: "closed", note: "" },
 ];
